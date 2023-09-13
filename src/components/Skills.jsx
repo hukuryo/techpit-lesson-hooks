@@ -1,32 +1,31 @@
-import { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import axios from 'axios';
 import { skillReducer, initialState, actionTypes } from '../reducers/skillReducer';
 import { requestStates } from '../constants';
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
-const [state, dispatch] = useReducer(skillReducer, initialState);
-
-const generateLanguageCountObj = (allLanguageList) => {
-    const notNullLanguageList = allLanguageList.filter(language => language != null);
-    const uniqueLanguageList = [...new Set(notNullLanguageList)];
-
-    return uniqueLanguageList.map(item => {
-        return {
-            language: item,
-            count: allLanguageList.filter(language => language === item).length
-        }
-    });
-};
-
 export const Skills = () => {
+    const [state, dispatch] = useReducer(skillReducer, initialState); // useReducerを関数コンポーネント内で呼び出す
+
+    const generateLanguageCountObj = (allLanguageList) => {
+        const notNullLanguageList = allLanguageList.filter(language => language != null);
+        const uniqueLanguageList = [...new Set(notNullLanguageList)];
+
+        return uniqueLanguageList.map(item => {
+            return {
+                language: item,
+                count: allLanguageList.filter(language => language === item).length
+            }
+        });
+    };
 
     useEffect(() => {
         dispatch({ type: actionTypes.fetch });
         axios.get('https://api.github.com/users/hukuryo/repos')
             .then((response) => {
                 const languageList = response.data.map(res => res.language);
-                const countedLanguageList = generateLanguageCountObj(languageList);
+                const countedLanguageList = generateLanguageCountObj(languageList); // generateLanguageCountObjを呼び出す
                 dispatch({ type: actionTypes.success, payload: { languageList: countedLanguageList } });
             })
             .catch(() => {
